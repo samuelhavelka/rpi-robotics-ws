@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <pthread.h>
+#include <time.h>
 
 #include <lgpio.h>
 
@@ -173,7 +174,8 @@ int run_motor(int h, int PIN, double speed, double duration) {
     return 0;
 }
 
-void *run_motor_thread(motor_struct *arg) {
+
+void *run_motor_thread(void *arg) {
     /* Start motor running in a new thread */
     
     int h;
@@ -186,93 +188,30 @@ void *run_motor_thread(motor_struct *arg) {
     shutdown_PIN(h, ptr->PIN);
 
     printf("End thread %d\n", ptr->PIN);
-    return;
 }
 
-void *early_thread_termination(termination_struct *ts) {
+void *early_thread_termination(void *arg) {
+    /* Wait for stop condition to terminate thread */
+
+    termination_struct *ts = arg;
 
     pthread_t *p = ts->p;
     int *pCondition = ts->pCondition;
-
-    printf("pCondition %d\n", *pCondition);
-    printf("p %d\n", p);
-
+    
     while(1){
-
         if (*pCondition==1){
-            printf("EARLY TERM pCondition %d\n", *pCondition);
             lgThreadStop(p);
-            return 0;
         }
         lguSleep(0.2);
     }
-    
-    return;
 }
 
-void *update_condition(int *pCondition) {
+void *update_condition(void *arg) {
+    /* Update the stop condition for a thread after 3 sec */
+    int *pCondition = arg;
     lguSleep(3);
     *pCondition = 1;
-    return 0;
 }
-
-
-int main()
-{
-    printf("Running main...\n\n");
-    int status;
-    int h;
-    int PIN;
-
-    PIN = 12;
-
-    // print_gpio_modes(); // print out the mode for all GPIO pins
-    // debug_blink_pin(PIN);
-
-    int C1 = 0;
-
-    motor_struct md0;
-    motor_struct *ptr_md0 = &md0;
-    md0.PIN = 5;
-    md0.speed = 0.1;
-    md0.duration = 10;
-
-    motor_struct md1;
-    motor_struct *ptr_md1 = &md1;
-    md1.PIN = 6;
-    md1.speed = 0.5;
-    md1.duration = 5;
-
-    int num_threads = 2;
-    pthread_t *p1[num_threads];
-
-    p1[0] = lgThreadStart(run_motor_thread, ptr_md0);
-    p1[1] = lgThreadStart(run_motor_thread, ptr_md1);
-
-    printf("p1[0] %d\n", p1[0]);
-
-
-    termination_struct ts;
-    ts.p = p1[0];
-    ts.pCondition = &C1;
-
-    // printf("pCondition %d\n", ts.pCondition);
-    // printf("p %d\n", ts.p);
-
-    pthread_t tid;
-    pthread_create(&tid, NULL, early_thread_termination, &ts);
-
-    pthread_t tid2;
-    pthread_create(&tid2, NULL, update_condition, ts.pCondition);
-
-    for (int i = 0; i < num_threads; i++) {
-        status = pthread_join(*p1[i], NULL);
-    }
-
-    printf("done\n");
-    return 0;
-}
-
 
 // ssh pi@raspberrypi 
 // gcc motor.c -o a.out

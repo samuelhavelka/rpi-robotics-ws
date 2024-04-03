@@ -3,7 +3,7 @@
 #include <lgpio.h>
 
 #include "gps.h"
-// #include "motor.h"
+#include "motor.h"
 
 int main()
 {

@@ -161,7 +161,7 @@ gnrmc_t get_position_ma(int serial_handle, int n) {
     return measurement;
 }
 
-int main()
+int main_gps()
 {
     printf("Running main...\n\n");
 
