@@ -17,10 +17,12 @@ typedef struct {
 int initialize_input(int PIN);
 int initialize_output(int PIN);
 int shutdown_PIN(int h, int PIN);
+
 void print_gpio_modes(void);
 void debug_blink_pin(int PIN);
+
 int run_motor(int h, int PIN, double speed, double duration);
-void *run_motor_thread(motor_struct *arg);
-void *early_thread_termination(termination_struct *ts);
-void *update_condition(int *pCondition);
-// int motor_test();
+
+void *run_motor_thread(void *arg);
+void *early_thread_termination(void *arg);
+void *update_condition(void *arg);

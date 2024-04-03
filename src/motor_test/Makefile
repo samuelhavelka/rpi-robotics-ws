@@ -3,19 +3,19 @@
 # make clean  # remove ALL binaries and objects
 
 CC=gcc
-IDIR=include
-ODIR=src
+IDIR=../../include
+ODIR=..
 CFLAGS=-I$(IDIR)
 
 # link lgpio library
 LIBS=-llgpio
 
 # prepend header files with IDIR
-_DEPS = motor.h gps.h
+_DEPS = motor.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
 # prepend object files with ODIR
-_OBJ = motor.o gps.o
+_OBJ = motor.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 
@@ -23,7 +23,7 @@ $(ODIR)/%.o: %.c $(DEPS)
 	$(CC) -c $< -o $@ $(CFLAGS) $(LIBS)
 
 
-main: $(OBJ)
+motor_test: $(OBJ)
 	$(CC) $@.c -o $@.o $^ $(CFLAGS) $(LIBS)
 
 # perform cleanup
