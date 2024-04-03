@@ -24,3 +24,5 @@ int initialize_uart(char port[], int baud_rate);
 
 gnrmc_t get_position(int serial_handle);
 gnrmc_t get_position_ma(int serial_handle, int n);
+
+// int gps_test();

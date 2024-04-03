@@ -8,19 +8,6 @@
 
 #include "motor.h"
 
-// define struct for passing motor control parameters
-typedef struct {
-    int PIN;
-    double speed;
-    double duration;
-} motor_struct;
-
-// define struct for passing early termination args to thread 
-typedef struct {
-    pthread_t *p;
-    int *pCondition;
-} termination_struct;
-
 
 int initialize_input(int PIN) {
     /* Open gpiochip and claim PIN for output. */
@@ -199,7 +186,7 @@ void *run_motor_thread(motor_struct *arg) {
     shutdown_PIN(h, ptr->PIN);
 
     printf("End thread %d\n", ptr->PIN);
-    return 0;
+    return;
 }
 
 void *early_thread_termination(termination_struct *ts) {
@@ -220,13 +207,13 @@ void *early_thread_termination(termination_struct *ts) {
         lguSleep(0.2);
     }
     
-    return EXIT_FAILURE;
+    return;
 }
 
 void *update_condition(int *pCondition) {
     lguSleep(3);
     *pCondition = 1;
-    return;
+    return 0;
 }
 
 
@@ -246,15 +233,15 @@ int main()
 
     motor_struct md0;
     motor_struct *ptr_md0 = &md0;
-    md0.PIN = PIN;
+    md0.PIN = 5;
     md0.speed = 0.1;
     md0.duration = 10;
 
     motor_struct md1;
     motor_struct *ptr_md1 = &md1;
-    md1.PIN = 20;
+    md1.PIN = 6;
     md1.speed = 0.5;
-    md1.duration = 7;
+    md1.duration = 5;
 
     int num_threads = 2;
     pthread_t *p1[num_threads];

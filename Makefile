@@ -11,7 +11,7 @@ _DEPS = motor.h gps.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
 # prepend object files with ODIR
-_OBJ = gps.o
+_OBJ = motor.o gps.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 $(ODIR)/%.o: %.c $(DEPS)

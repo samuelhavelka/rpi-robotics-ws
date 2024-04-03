@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "motor.h": "c",
+        "gps.h": "c"
+    }
+}
