@@ -22,7 +22,11 @@ gnrmc_t parse_gnss(char str[256]);
 
 int initialize_uart(char port[], int baud_rate);
 
-gnrmc_t get_position(int serial_handle);
-gnrmc_t get_position_ma(int serial_handle, int n);
+// // define macro for default buffer size
+// #define GET_MACRO_get_position(_1,_2,get_position2,...) get_position2
+// #define get_position(...) GET_MACRO_get_position(__VA_ARGS__, get_position2,get_position1)(__VA_ARGS__)
+// #define get_position1(a) get_position_func(a)
 
-// int gps_test();
+gnrmc_t get_position(int serial_handle);
+
+gnrmc_t get_position_ma(int serial_handle, int n);

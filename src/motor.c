@@ -11,7 +11,7 @@
 
 
 int initialize_input(int PIN) {
-    /* Open gpiochip and claim PIN for output. */
+    /* Open gpiochip and claim PIN for input. */
     int h;
     int CHIP = 4;
 
@@ -181,13 +181,13 @@ void *run_motor_thread(void *arg) {
     int h;
     motor_struct *ptr = arg;
 
-    printf("Start thread %d\n", ptr->PIN);
+    printf("Start motor thread %d\n", ptr->PIN);
 
     h = initialize_output(ptr->PIN);
     run_motor(h, ptr->PIN, ptr->speed, ptr->duration);
     shutdown_PIN(h, ptr->PIN);
 
-    printf("End thread %d\n", ptr->PIN);
+    printf("End motor thread %d\n", ptr->PIN);
 }
 
 void *early_thread_termination(void *arg) {
@@ -213,7 +213,5 @@ void *update_condition(void *arg) {
     *pCondition = 1;
 }
 
-// ssh pi@raspberrypi 
-// gcc motor.c -o a.out
-// gcc -Wall -o a.out motor.c -llgpio
-// time ./a.out
+
+

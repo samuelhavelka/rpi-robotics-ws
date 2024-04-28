@@ -11,11 +11,11 @@ CFLAGS=-I$(IDIR)
 LIBS=-llgpio
 
 # prepend header files with IDIR
-_DEPS = motor.h gps.h
+_DEPS = motor.h gps.h helper.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
 # prepend object files with ODIR
-_OBJ = motor.o gps.o
+_OBJ = motor.o gps.o helper.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 

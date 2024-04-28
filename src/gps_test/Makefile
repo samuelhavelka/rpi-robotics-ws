@@ -11,11 +11,11 @@ CFLAGS=-I$(IDIR)
 LIBS=-llgpio
 
 # prepend header files with IDIR
-_DEPS = motor.h helper.h
+_DEPS = gps.h helper.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
 # prepend object files with ODIR
-_OBJ = motor.o helper.o
+_OBJ = gps.o helper.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 
@@ -23,7 +23,7 @@ $(ODIR)/%.o: %.c $(DEPS)
 	$(CC) -c $< -o $@ $(CFLAGS) $(LIBS)
 
 
-motor_test: $(OBJ)
+gps_test: $(OBJ)
 	$(CC) $@.c -o $@.o $^ $(CFLAGS) $(LIBS)
 
 # perform cleanup

@@ -16,6 +16,20 @@ void print_array(char array[], int length) {
 }
 
 
+int initialize_uart(char port[], int baud_rate) {
+    /* Open serial port with given baudrate. Returns handle (>=0). */
+
+    int serial_handle;
+
+    if ((serial_handle = lgSerialOpen(port, baud_rate, 0)) < 0) {	/* open serial port */
+        fprintf (stderr, "ERROR: Unable to open serial device: %s\n", strerror (errno)) ;
+        return -1;
+    }
+
+    return serial_handle;
+}
+
+
 gnrmc_t assign_property_gnrmc(gnrmc_t target ,char *token, int idx) {
 
     switch (idx)
@@ -76,6 +90,7 @@ gnrmc_t parse_gnss(char str[256]) {
             while (inner_token != NULL) {
                 // printf("_%s_\t", inner_token);
                 measurement = assign_property_gnrmc(measurement, inner_token, token_count);
+
                 inner_token = strtok_r(NULL, inner_delimiters, &inner_saveptr);
                 token_count++;
             }
@@ -88,18 +103,6 @@ gnrmc_t parse_gnss(char str[256]) {
     return measurement;
 }
 
-int initialize_uart(char port[], int baud_rate) {
-    /* Open serial port with given baudrate. Returns handle (>=0). */
-
-    int serial_handle;
-
-    if ((serial_handle = lgSerialOpen(port, baud_rate, 0)) < 0) {	/* open serial port */
-        fprintf (stderr, "ERROR: Unable to open serial device: %s\n", strerror (errno)) ;
-        return -1;
-    }
-
-    return serial_handle;
-}
 
 gnrmc_t get_position(int serial_handle) {
     /*
@@ -111,31 +114,36 @@ gnrmc_t get_position(int serial_handle) {
     int byte_count;
     int max_len = 256;
     char buffer[256];
-    gnrmc_t measurement;
+
+    gnrmc_t measurements;
 
     while(1){
-
+        
         if(lgSerialDataAvailable(serial_handle)) { 
+
             byte_count = lgSerialRead(serial_handle, buffer, max_len);	/* receive character serially*/	
 
-            if (byte_count>230) {   // required number of characters to get full GNRMC 
-                // print_array(buffer,max_len);     // print out serial buffer for debugging 
-                measurement = parse_gnss(buffer);
+            if (byte_count>(230)) {   // required number of characters to get full GNRMC 
+                
+                measurements = parse_gnss(buffer);
+
                 if (err_count>2) {fprintf(stderr, "WARNING: gps.request_position() : (%d) GPS serial byte count less than minimum.\n", err_count);}
                 break;
+
             } 
             else {err_count++;}
-        }  
+        }
+        lguSleep(0.01);
     } 
     // printf("Error count: %d\n", err_count);     // print out number of truncated readings 
-    return measurement;
+    return measurements;
 }
 
 gnrmc_t get_position_ma(int serial_handle, int n) {
     /*
     Returns average position of n measurements
     Takes approx 0.1 sec per measurement.
-    [Potentially increase buffer size for better performance]
+    [Too slow for large n, potentially increase buffer size for better performance?]
     */
 
     int i=1;
@@ -159,27 +167,4 @@ gnrmc_t get_position_ma(int serial_handle, int n) {
     measurement.longitude /= n;
 
     return measurement;
-}
-
-int main_gps()
-{
-    printf("Running main...\n\n");
-
-    int serial_handle;
-    gnrmc_t measurement;
-
-    serial_handle = initialize_uart("/dev/ttyAMA0", 115200);
-
-    while(1) {
-        measurement = get_position_ma(serial_handle, 3);
-
-        printf("GNRMC: %f %d %f %c %f %c %f \n",measurement.time, measurement.valid,
-                                                measurement.latitude,measurement.lat_dir,
-                                                measurement.longitude,measurement.long_dir,
-                                                measurement.quality);
-        break;
-    };
-
-    lgSerialClose(serial_handle);
-    return 0;
 }

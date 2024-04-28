@@ -1,7 +1,5 @@
 #include <stdio.h>
-
 #include <lgpio.h>
-
 #include "motor.h"
 
 
