@@ -1,8 +1,10 @@
 # rpi-robotics-tests
 
-Collection of test programs for Raspberry Pi 5:
+This is a collection of experiments for Raspberry Pi 5 with a robotics application.
+
+Currently includes:
 * Motor PWM control (software timed)
 * GPS data call (Ardusimple RTK2B)
-* GPIO testing
+* GPIO tests
 
-NOTE: these are being used for prototyping and MVP testing. NOT for production. Use at your own risk.
+NOTE: these are being used for rapid prototyping and MVP testing. NOT for production. Use at your own risk.
