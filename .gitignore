@@ -1,0 +1,8 @@
+.vscode
+*.o
+
+build_controller.sh
+send_to_pi.sh
+ssh_raspi.sh
+
+controller/test_pyserial.py

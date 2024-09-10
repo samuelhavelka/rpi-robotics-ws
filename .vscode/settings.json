@@ -1,6 +1,18 @@
 {
     "files.associations": {
-        "motor.h": "c",
-        "gps.h": "c"
+        "gps.h": "c",
+        "stdio.h": "c",
+        "int-ll64.h": "c",
+        "controller.h": "c",
+        "fcntl.h": "c",
+        "string.h": "c",
+        "array": "c",
+        "string": "c",
+        "string_view": "c",
+        "chrono": "c",
+        "ioctl.h": "c",
+        "time.h": "c",
+        "termios.h": "c",
+        "math.h": "c"
     }
 }
