@@ -14,16 +14,18 @@ See also:
 https://www.kernel.org/doc/Documentation/input/joystick-api.txt
 */
 
-#include <fcntl.h>
+#include <fcntl.h> // Contains file controls like O_RDWR
 #include <stdio.h>
-#include <unistd.h>
-#include <stdint.h>
+#include <unistd.h> // write(), read(), close()
+#include <stdint.h> // for uint8_t
 
 #include <linux/joystick.h>
 
-#include <errno.h>
-#include <stdlib.h>
+#include <errno.h> // Error integer and strerror() function
+// #include <stdlib.h>
 #include <string.h>
+
+#include "controller.h"
 
 /**
  * Reads a joystick event from the joystick device.
@@ -67,14 +69,6 @@ size_t get_button_count(int fd)
 
     return buttons;
 }
-
-/**
- * Current state of an axis.
- */
-struct axis_state
-{
-    short x, y;
-};
 
 /**
  * Keeps track of the current axis state.

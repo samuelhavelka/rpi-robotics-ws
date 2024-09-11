@@ -13,6 +13,11 @@
         "ioctl.h": "c",
         "time.h": "c",
         "termios.h": "c",
-        "math.h": "c"
+        "math.h": "c",
+        "stdint.h": "c",
+        "unistd.h": "c",
+        "errno.h": "c",
+        "joystick.h": "c",
+        "stdlib.h": "c"
     }
 }

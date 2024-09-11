@@ -23,8 +23,6 @@ int main()
         return 1;
     }
 
-    waitForArduino(serial_port);
-
     // ============================
 
     int js;

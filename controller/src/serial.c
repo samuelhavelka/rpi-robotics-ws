@@ -1,3 +1,5 @@
+// Library for communicating with an Arduino running "arduino.ino" over a USB connection.
+
 // C library headers
 #include <stdio.h>
 #include <string.h>
@@ -12,9 +14,11 @@
 
 #include <sys/ioctl.h> /* Serial Port IO Controls */
 
+#include "serial.h"
+
 // =========================
 
-int DEBUG = 1;
+int DEBUG = 0;
 
 // Define special character encoding scheme
 int startByte = 254;
@@ -26,15 +30,43 @@ int maxLen = 16;
 
 // =========================
 
-// struct to hold an array of bytes
-typedef struct byteString
+int waitForArduino(int serial_port)
 {
-    int N;              // length of array
-    unsigned char *ptr; // array of bytes [0-255]
-} byteString;
+    // Wait for Arduino to initialize and receive 'Ready' message.
+
+    char read_buf[32];
+    int n;
+    int i;
+    char *p = NULL;
+
+    while (!p)
+    {
+        // Set read buffer to all zeros to simplify printf() call
+        memset(&read_buf, '\0', sizeof(read_buf));
+
+        n = read(serial_port, &read_buf, sizeof(read_buf));
+        // n is the number of bytes read, and can also be -1 to signal an error.
+        if (n < 0)
+        {
+            printf("Error reading: %s\n", strerror(errno));
+        }
+
+        p = strstr(read_buf, "Ready");
+        i++;
+
+        if (i > 50)
+            return -1;
+
+        usleep(0.1 * 1000000); // sleep for 0.1 sec
+    }
+    return 0;
+}
 
 int init_serial_port(const char *device)
 {
+    // Open serial port to Arduino and wait for setup to finish.
+    // Sets termios settings and baud rate.
+
     // open connection to serial port
     int serial_port = open(device, O_RDWR | O_NOCTTY);
 
@@ -70,8 +102,6 @@ int init_serial_port(const char *device)
 
     tty.c_oflag &= ~OPOST; // Prevent special interpretation of output bytes (e.g. newline chars)
     tty.c_oflag &= ~ONLCR; // Prevent conversion of newline to carriage return/line feed
-    // tty.c_oflag &= ~OXTABS; // Prevent conversion of tabs to spaces (NOT PRESENT ON LINUX)
-    // tty.c_oflag &= ~ONOEOT; // Prevent removal of C-d chars (0x004) in output (NOT PRESENT ON LINUX)
 
     // tty.c_cc[VTIME] = 10; // Wait for up to 1s (10 deciseconds), returning as soon as any data is received.
     // tty.c_cc[VMIN] = 0;
@@ -87,7 +117,14 @@ int init_serial_port(const char *device)
         return -1;
     }
 
-    printf("Arduino %d Init Complete.\n", serial_port);
+    int retval = waitForArduino(serial_port);
+    if (retval < 0)
+    {
+        printf("Error: Arduino %d : initialization timeout reached.\n", serial_port);
+        return -1;
+    }
+
+    printf("Arduino %d is Ready.\n\n", serial_port);
 
     return serial_port;
 }
@@ -118,34 +155,6 @@ byteString copyArrayToByteString(byteString data, unsigned char new_data[])
     }
 
     return data;
-}
-
-void waitForArduino(int serial_port)
-{
-    // Wait for Arduino to initialize and receive 'Ready' message.
-
-    char read_buf[32];
-    int n;
-    char *p = NULL;
-
-    while (!p)
-    {
-        // Set read buffer to all zeros to simplify printf() call
-        memset(&read_buf, '\0', sizeof(read_buf));
-
-        n = read(serial_port, &read_buf, sizeof(read_buf));
-        // n is the number of bytes read, and can also be -1 to signal an error.
-        if (n < 0)
-        {
-            printf("Error reading: %s\n", strerror(errno));
-        }
-
-        p = strstr(read_buf, "Ready");
-
-        usleep(0.1 * 1000000); // sleep for 0.1 sec
-    }
-
-    printf("Arduino %d is Ready.\n\n", serial_port);
 }
 
 byteString decodeSpecialBytes(byteString data)
@@ -325,8 +334,6 @@ int serial_test()
         printf("[init_serial_port]: Error %i from init_serial_port(): %s\n", errno, strerror(errno));
         return 1;
     }
-
-    waitForArduino(serial_port);
 
     byteString data;
     data.N = 2;
